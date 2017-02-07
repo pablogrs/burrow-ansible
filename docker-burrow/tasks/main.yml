@@ -1,0 +1,40 @@
+---
+# tasks file for docker-burrow
+---
+- name: Stop burrow docker container
+  docker:
+    name: logstash
+    image: "burrow:latest"
+    state: stopped
+  ignore_errors: yes
+
+- name: Add burrow config dir
+  file:
+    path: "/usr/share/burrow/"
+    state: directory
+
+- name: Template burrow config
+  template:
+    src: burrow.cfg
+    dest: "/usr/share/burrow/burrow.cfg"
+
+- name: Template burrow logging config
+  template:
+    src: logging.cfg
+    dest: "{/usr/share/burrow/logging.cfg"
+
+- name: Start burrow docker container
+  docker:
+    name: burrow
+    image: "burrow:latest"
+    restart_policy: always
+    insecure_registry: yes
+    pull: missing
+    volumes:
+      - "/{{base_path}}/burrow/logging.cfg:/etc/burrow/logging.cfg"
+      - "/{{base_path}}/burrow/burrow.cfg:/etc/burrow/burrow.cfg"
+    net: host
+    state: reloaded
+    ports:
+      - "8000:8000"
+    log_driver: json

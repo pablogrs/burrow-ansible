@@ -1,0 +1,8 @@
+---
+
+- name: Install/Update docker Kafka-Zookeeper nodes
+  hosts: all
+#  vars_files:
+#  - "/vars.yml"
+  roles:
+  - docker-burrow
